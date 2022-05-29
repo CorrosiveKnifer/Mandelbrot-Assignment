@@ -67,8 +67,8 @@ protected:
 	std::chrono::high_resolution_clock::time_point m_startWork;
 	std::chrono::high_resolution_clock::time_point m_endWork;
 
-	bool m_HasWorkSent;
-	bool m_IsTiming;
+	bool m_HasWorkSent = false;
+	bool m_IsTiming = false;
 	
 	GLuint m_program;
 	GLuint m_VAO_ID;
@@ -85,14 +85,14 @@ protected:
 
 	unsigned int m_borderCount;
 
-	float m_currZoom;
-	float m_zoom;
-	float m_zoomRate;
+	float m_currZoom = 1.0f;
+	float m_zoom = 1.0f;
+	float m_zoomRate = 1.0f;
 
 	glm::vec3 m_pixelColor;
 
-	glm::vec2 m_origin;
-	glm::vec2 m_tempPos;
+	glm::vec2 m_origin = glm::vec2(0, 0);
+	glm::vec2 m_tempPos = glm::vec2(0, 0);
 	Pixel** m_pPixels;
 
 	Texture* m_texture;

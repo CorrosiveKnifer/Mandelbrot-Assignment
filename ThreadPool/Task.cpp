@@ -52,6 +52,7 @@ CTask::~CTask()
 
 }
 
+//[MY WORK] Start: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //Copy Constructor
 CTask::CTask(const CTask& other)
 {
@@ -60,7 +61,9 @@ CTask::CTask(const CTask& other)
 	this->m_sizeX = other.m_sizeX;
 	this->m_sizeY = other.m_sizeY;
 }
-
+//[MY WORK] End: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 
+//[MY WORK] Start: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //Equals operator
 CTask& CTask::operator=(const CTask& other)
 {
@@ -71,10 +74,12 @@ CTask& CTask::operator=(const CTask& other)
 
 	return *this;
 }
-
+//[MY WORK] End: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 
 //Functor
 void CTask::operator()() const
 {
+	//[MY WORK] Start: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	//Sleep to simulate work being done
 	GameScene* scene = dynamic_cast<GameScene*>(SceneManager::TopScene());
 	for (unsigned int i = m_startX; i < m_startX + m_sizeX; i++)
@@ -99,6 +104,7 @@ void CTask::operator()() const
 			}
 		}
 	}
+	//[MY WORK] End: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 
 //	Iterate( _pixel )
@@ -115,6 +121,7 @@ void CTask::operator()() const
 //
 bool CTask::Iterate(Pixel& _pixel) const
 {
+	//[MY WORK] Start: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Complex curr(0.0f, 0.0f);
 
 	//Iterate for n times
@@ -136,8 +143,10 @@ bool CTask::Iterate(Pixel& _pixel) const
 		}
 	}
 	return false;
+	//[MY WORK] End ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 
+//[MY WORK] Start: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //	Iterate( _pixel )
 //
 //	Author: Michael Jordan
@@ -156,3 +165,4 @@ std::string CTask::ToString()
 	output += " Size: " + std::to_string(m_sizeX) + ", " + std::to_string(m_sizeY)+". ";
 	return output;
 }
+//[MY WORK] End ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

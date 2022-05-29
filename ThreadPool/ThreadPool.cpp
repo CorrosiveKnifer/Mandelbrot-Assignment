@@ -46,6 +46,7 @@ ThreadPool::ThreadPool(unsigned int _size)
 //Destructor
 ThreadPool::~ThreadPool()
 {
+	//[MY WORK] Start: ~~~~~~~~~~~~~~~~~~~~
 	m_bStop = true;
 	for (unsigned int i = 0; i < m_iNumberOfThreads; i++)
 	{
@@ -57,6 +58,7 @@ ThreadPool::~ThreadPool()
 		delete m_pWorkQueue;
 		m_pWorkQueue = 0;
 	}
+	//[MY WORK] End ~~~~~~~~~~~~~~~~~~~~
 }
 
 //Singleton GetInstance
@@ -193,21 +195,30 @@ bool ThreadPool::HasItemsRemaining()
 //
 void ThreadPool::DoWork()
 {
+	//[MY WORK] Start: ~~~~~~~~~~~~~~~~~~~~
 	//Entry point of  a thread.
 	std::cout << std::endl << "Thread with id [" << std::this_thread::get_id() << "] starting........" << std::endl;
+	//[MY WORK] End ~~~~~~~~~~~~~~~~~~~~
 	while (!m_bStop)
 	{
 		CTask WorkItem;
+
 		//If there is an item in the queue to be processed; just take it off the q and process it
-		//m_pWorkQueue->blocking_pop(WorkItem);
 		if (m_pWorkQueue->blocking_pop(WorkItem, 500))
 		{
+			//[MY WORK] Start ~~~~~~~~~~~~~~~~~~~~
 			std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
+			//[MY WORK] End ~~~~~~~~~~~~~~~~~~~~
+
 			WorkItem();
+
+			//[MY WORK] Start ~~~~~~~~~~~~~~~~~~~~
 			std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
 
 			auto time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 			std::cout << "Thread [" << std::this_thread::get_id() << "] finished: " << WorkItem.ToString() << "in " << time << "microseconds." << std::endl;
+			//[MY WORK] End ~~~~~~~~~~~~~~~~~~~~
+
 			m_aiItemsProcessed++;
 		}
 		//Else just continue back to the beginning of the while loop.

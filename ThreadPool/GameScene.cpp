@@ -31,26 +31,23 @@
 //Constructor
 GameScene::GameScene()
 {
-	//Pixel width/height
-	float width = (Renderer::SCREEN_WIDTH * 0.5f);
-	float height = (Renderer::SCREEN_HEIGHT * 0.5f);
-
+	//Load array of pixel information
 	m_pPixels = new Pixel*[Renderer::SCREEN_WIDTH];
 	for (int i = 0; i < Renderer::SCREEN_WIDTH; i++)
 	{
 		m_pPixels[i] = new Pixel[Renderer::SCREEN_HEIGHT];
 	}
 
-	//Default locations
+	//Box vertices
 	GLfloat vertices[] = {
-		//Left bar
-		1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 	   //Top - Right
-		-1.0f, 1.0f, 0.0f, 0.0f, 0.0f,	   //Top - Left
-		-1.0f, -1.0f, 0.0f, 1.0f, 0.0f,	   //Bottem - Left
-		1.0f, -1.0f, 0.0f, 1.0f, 1.0f,	   //Bottem - Right
+		//Pos (x, y, z)			Uv(u, v)
+		 1.0f,  1.0f, 0.0f,		0.0f, 1.0f, 	   //Top - Right
+		-1.0f,  1.0f, 0.0f,		0.0f, 0.0f,	   //Top - Left
+		-1.0f, -1.0f, 0.0f,		1.0f, 0.0f,	   //Bottem - Left
+		 1.0f, -1.0f, 0.0f,		1.0f, 1.0f,	   //Bottem - Right
 	};
 
-	//Default locations
+	//Box Indices
 	GLuint indices[] = {
 		0, 1, 2,
 		2, 3, 0,
@@ -60,11 +57,10 @@ GameScene::GameScene()
 	unsigned int sizeV = sizeof(vertices) / sizeof(GLfloat);
 	unsigned int sizeI = sizeof(indices) / sizeof(GLuint);
 
-	//Calculate count
+	//Calculate list count
 	m_verticesCount = sizeV / 7;
 	m_indicesCount = sizeI;
-	m_zoom = 1.0f;
-
+	
 	//Load into dynamic variables
 	m_pVertices = new GLfloat[sizeV];
 	for (unsigned int i = 0; i < sizeV; i++)
@@ -79,24 +75,28 @@ GameScene::GameScene()
 		m_pIndices[i] = indices[i];
 	}
 
+	//Render program using MandelBrotVert and MandelBrotFrag shaders
 	m_program = Renderer::GetInstance().CreateProgram("MandelBrotVert.vs", "MandelBrotFrag.fs");
+	
+	//Create a Vertex Array Object
 	m_VAO_ID = Renderer::GetInstance().CreateVAO(BUFFER_POS | BUFFER_TEX, sizeV * sizeof(GLfloat), sizeI * sizeof(GLuint), m_pVertices, m_pIndices);
 	
+	//Load text texture into memory
 	m_text25Gen = Renderer::GetInstance().CreateTextGenerator("Exo-Bold.ttf", 15);
+
+	//Set text color
 	m_text25Gen->SetColour(glm::vec3(1.0, 0.0, 0.0));
 
+	//Screen texture
 	m_texture = Renderer::GetInstance().CreateBlankTexture("Render", Renderer::SCREEN_WIDTH, Renderer::SCREEN_HEIGHT);
 
+	//Set up cursor boarder
 	SetUpBorder();
-	m_HasWorkSent = false;
-	m_IsTiming = false;
-	m_origin = glm::vec2(0, 0);
-	m_tempPos = glm::vec2(0, 0);
-	m_currZoom = 1.0f;
-	m_zoomRate = 1.0f;
 
+	//Load file settings
 	LoadSettings();
 
+	//Start Thread pool
 	ThreadPool::GetInstance().Initialize();
 	ThreadPool::GetInstance().Start();
 }
@@ -134,7 +134,9 @@ GameScene::~GameScene()
 //
 void GameScene::SetUpBorder()
 {
-	//Default locations
+	//Note: Vertices are dynmically loaded based on position data.
+	
+	//Cursor indices
 	GLuint indices[] = {
 		0, 1, 2,
 		2, 3, 0,
@@ -149,11 +151,11 @@ void GameScene::SetUpBorder()
 		11, 7, 0,
 	};
 
+	//Create new Vertex Array Object
 	glGenVertexArrays(1, &m_BorderVAO);
 	glBindVertexArray(m_BorderVAO);
 
 	//Size of each array
-	//unsigned int sizeV = sizeof(vertices) / sizeof(GLfloat);
 	unsigned int sizeI = sizeof(indices) / sizeof(GLuint);
 
 	m_borderCount = sizeI;
@@ -169,9 +171,11 @@ void GameScene::SetUpBorder()
 	glBindBuffer(GL_ARRAY_BUFFER, m_BorderVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * sizeI * 3, NULL, GL_DYNAMIC_DRAW);
 
+	//Shader layouts:
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)(0 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(0);
 
+	//Clear
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -197,14 +201,22 @@ void GameScene::Draw()
 	//Bind array
 	glBindVertexArray(m_VAO_ID);
 
+	//Change image color based on settings
 	glUniform3fv(glGetUniformLocation(m_program, "Color"), 1, glm::value_ptr(m_pixelColor));
+
+	//Change transform location
 	glUniformMatrix4fv(glGetUniformLocation(m_program, "Transform"), 1, GL_FALSE, glm::value_ptr(glm::mat4()));
+
+	//Apply current texture to screen object
 	m_texture->ApplyTexture(GL_TEXTURE0, m_program);
+
+	//Draw screen object
 	glDrawElements(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_INT, 0);
 
-	//Border
+	//Draw Cursor Border
 	DrawBorder();
 
+	//Draw Text
 	std::stringstream temp;
 	temp << std::fixed << std::setprecision(2) << m_zoom;
 

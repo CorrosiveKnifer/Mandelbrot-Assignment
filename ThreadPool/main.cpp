@@ -23,6 +23,7 @@ void ShutDown()
 	InputHandler::DestroyInstance();
 	Renderer::DestroyInstance();
 	ThreadPool::DestroyInstance();
+	IniParser::DestroyInstance();
 }
 
 //Force size of the window
