@@ -216,17 +216,26 @@ void GameScene::Draw()
 	//Draw Cursor Border
 	DrawBorder();
 
-	//Draw Text
+	//Generate appropriate text
 	std::stringstream temp;
-	temp << std::fixed << std::setprecision(2) << m_zoom;
-
-	m_text25Gen->RenderText("Zoom: " + temp.str() + "x ", glm::vec2(0, 0));
+	temp << std::fixed << std::setprecision(2) << m_currZoom << "x (" << std::setprecision(2) << m_zoom << ")";
 
 	std::stringstream temp2;
 	temp2 << std::fixed << std::setprecision(2) << m_tempPos.x << ", ";
 	temp2 << std::fixed << std::setprecision(2) << m_tempPos.y;
 
-	m_text25Gen->RenderText("Pos: " + temp2.str(), glm::vec2(100, 0));
+	//Draw Text
+	m_text25Gen->SetColour(glm::vec3(0, 0, 0));
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		if (i == 1)
+		{
+			m_text25Gen->SetColour(glm::vec3(200/255.0f, 160/255.0f, 0.0f));
+		}
+		m_text25Gen->RenderText("Zoom: " + temp.str(), glm::vec2(5 - i * 1, 5 + i * 1));
+		m_text25Gen->RenderText("Pos: " + temp2.str(), glm::vec2(80 + temp.str().length() * 12 - i * 1, 5+ i * 1));
+	}
+	
 }
 
 //	DrawBorder( )
@@ -543,7 +552,7 @@ void GameScene::OnMouseButtonChange()
 		if (InputHandler::GetInstance().IsMousePressed(GLUT_LEFT_BUTTON))
 		{
 			m_origin += (m_tempPos) / m_currZoom;
-			m_currZoom = m_zoom;
+			m_currZoom = glm::clamp(m_zoom, 1.0f, m_zoomMax);
 			m_HasWorkSent = false;
 		}
 	}
@@ -567,12 +576,14 @@ void GameScene::OnMouseWheelChange()
 	if (m_HasWorkSent)
 	{
 		int dir = InputHandler::GetInstance().GetMouseWheelDir(0);
-
-		m_zoom += dir * m_currZoom * 0.5f;
-
-		if (m_zoom < 1)
+		
+		if(dir == -1 || m_zoom < m_currZoom)
 		{
-			m_zoom = 1;
+			m_zoom = glm::clamp(m_zoom + dir * m_currZoom * 0.125f, 1.0f, m_zoomMax);
+		}
+		else
+		{
+			m_zoom = glm::clamp(m_zoom + dir * m_currZoom * 0.5f, 1.0f, m_zoomMax);
 		}
 	}
 }

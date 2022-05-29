@@ -88,7 +88,7 @@ protected:
 	float m_currZoom = 1.0f;
 	float m_zoom = 1.0f;
 	float m_zoomRate = 1.0f;
-
+	const float m_zoomMax = 150000.0f;
 	glm::vec3 m_pixelColor;
 
 	glm::vec2 m_origin = glm::vec2(0, 0);
